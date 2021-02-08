@@ -102,7 +102,8 @@ class main(object):
         df = self._get_dummies(df,cols)
 
         X =  df.drop('y', axis=1)
-        Y = df.iloc[:,-1]
+        Y = df.loc[:, df.columns == 'y']
+        #Y = df.iloc[:,-1]
 
         X_train, X_test, Y_train, Y_test = self._split_data(X,Y)
 
@@ -111,9 +112,11 @@ class main(object):
         y_pred = logmodel.predict(X_test)
         acc = "{:.2%}".format(logmodel.score(X_test, Y_test))
         #rep = metrics.classification_report(Y_test,y_pred)
-        rep = metrics.confusion_matrix(Y_test,y_pred)
+        recall = "{:.2%}".format(metrics.recall_score(Y_test, y_pred))
+        prec = "{:.2%}".format(metrics.precision_score(Y_test,y_pred))
+        confm = metrics.confusion_matrix(Y_test,y_pred)
 
-        return df1, acc, rep
+        return df1, acc, recall, prec, confm
 
     def log_reg_b(self):
         df = self.banking.copy()
@@ -127,7 +130,7 @@ class main(object):
 
         #Check the counts and percentage of y
         k=pd.DataFrame(Y,columns=['y'])
-        s = k.y#pd.Series(Y)
+        s = k.y
         counts = s.value_counts()
         percent = s.value_counts(normalize=True).mul(100).round(2).astype(str) #+ '%'
         df1 = pd.DataFrame({'y':s.unique(),'counts': counts, 'per': percent})
@@ -138,7 +141,8 @@ class main(object):
         logmodel.fit(X_train,Y_train)
         y_pred = logmodel.predict(X_test)
         acc = "{:.2%}".format(logmodel.score(X_test, Y_test))
-        #rep = metrics.classification_report(Y_test,y_pred)
-        rep = metrics.confusion_matrix(Y_test,y_pred)
+        recall = "{:.2%}".format(metrics.recall_score(Y_test, y_pred))
+        prec = "{:.2%}".format(metrics.precision_score(Y_test,y_pred))
+        confm = metrics.confusion_matrix(Y_test,y_pred)
 
-        return df1, acc, rep
+        return df1, acc, recall, prec, confm
